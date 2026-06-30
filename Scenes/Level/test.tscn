@@ -1,0 +1,132 @@
+[gd_scene format=4 uid="uid://bivxvk7ndp2un"]
+
+[ext_resource type="PackedScene" uid="uid://b54xy4sboh0dx" path="res://Scenes/Entities/Player.tscn" id="1_afwlc"]
+[ext_resource type="Texture2D" uid="uid://b8qhlhp56mmwq" path="res://Asset/Sprites/Background/stonetile.bmp" id="2_4h52f"]
+[ext_resource type="Texture2D" uid="uid://bcq48kdhtq4f1" path="res://Asset/Sprites/User Interface/healthbar-quantized.png" id="3_suyhb"]
+[ext_resource type="Texture2D" uid="uid://d00be6ktyke3q" path="res://Asset/Sprites/User Interface/heartspin.png" id="4_ulvnh"]
+[ext_resource type="Texture2D" uid="uid://c17ppuxx184ma" path="res://Asset/Sprites/User Interface/kaeruicon.png" id="5_ulvnh"]
+[ext_resource type="PackedScene" uid="uid://cuy7efptk2h24" path="res://Scenes/Entities/dung.tscn" id="6_y71pw"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_suyhb"]
+texture = ExtResource("2_4h52f")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_ulvnh"]
+physics_layer_0/collision_layer = 16
+sources/0 = SubResource("TileSetAtlasSource_suyhb")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_suyhb"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ulvnh"]
+bg_color = Color(0.8666667, 0.14509805, 0.105882354, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y71pw"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(0, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gpvn2"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(24, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y0425"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(48, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7660m"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(72, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nppqs"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(96, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3wh3t"]
+atlas = ExtResource("4_ulvnh")
+region = Rect2(120, 0, 24, 23)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fweib"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y71pw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpvn2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y0425")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7660m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nppqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3wh3t")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Node2D" type="Node2D" unique_id=1841016055]
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=169326506]
+tile_map_data = PackedByteArray("AAAAAAwAAAAAAAAAAAABAAwAAAABAAAAAAACAAwAAAAAAAAAAAADAAwAAAABAAAAAAAEAAwAAAAAAAAAAAAFAAwAAAABAAAAAAAGAAwAAAAAAAAAAAAHAAwAAAABAAAAAAAIAAwAAAAAAAAAAAAJAAwAAAABAAAAAAAKAAwAAAAAAAAAAAALAAwAAAABAAAAAAARAAwAAAAAAAAAAAASAAwAAAABAAAAAAATAAwAAAAAAAAAAAAUAAwAAAABAAAAAAAVAAwAAAAAAAAAAAAWAAwAAAABAAAAAAAXAAwAAAAAAAAAAAAYAAwAAAABAAAAAAAZAAwAAAAAAAAAAAAaAAwAAAABAAAAAAAbAAwAAAAAAAAAAAAcAAwAAAABAAAAAAAeAAoAAAAAAAAAAAAfAAoAAAABAAAAAAAgAAoAAAAAAAAAAAAhAAoAAAABAAAAAAAiAAoAAAAAAAAAAAAjAAoAAAABAAAAAAAkAA4AAAAAAAAAAAAlAA4AAAABAAAAAAAmAA4AAAAAAAAAAAAnAA4AAAABAAAAAAAoAA4AAAAAAAAAAAApAA4AAAABAAAAAAAIAAgAAAAAAAAAAAAJAAgAAAABAAAAAAAKAAgAAAAAAAAAAAALAAgAAAABAAAAAAA=")
+tile_set = SubResource("TileSet_ulvnh")
+
+[node name="Player" parent="." unique_id=1217367855 instance=ExtResource("1_afwlc")]
+position = Vector2(87, 71)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=496420957]
+
+[node name="Health Bar" type="Node" parent="UI" unique_id=376515284]
+
+[node name="ProgressBar" type="ProgressBar" parent="UI/Health Bar" unique_id=600676808]
+offset_left = 39.0
+offset_top = 16.5
+offset_right = 120.0
+offset_bottom = 30.5
+theme_override_styles/background = SubResource("StyleBoxFlat_suyhb")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ulvnh")
+max_value = 5.0
+value = 5.0
+show_percentage = false
+
+[node name="Bar Overlay" type="Sprite2D" parent="UI/Health Bar" unique_id=1782665032]
+position = Vector2(66, 22)
+texture = ExtResource("3_suyhb")
+
+[node name="Spinning Heart" type="AnimatedSprite2D" parent="UI/Health Bar" unique_id=387794250]
+position = Vector2(24, 16.5)
+sprite_frames = SubResource("SpriteFrames_fweib")
+autoplay = "default"
+frame_progress = 0.58184826
+
+[node name="KY Icon" type="Sprite2D" parent="UI" unique_id=1841811560]
+position = Vector2(21, 220)
+texture = ExtResource("5_ulvnh")
+
+[node name="Label" type="Label" parent="UI" unique_id=1776923888]
+offset_left = 31.0
+offset_top = 208.0
+offset_right = 71.0
+offset_bottom = 231.0
+text = "x3"
+
+[node name="Enemies" type="Node" parent="." unique_id=1153324224]
+
+[node name="Basics" type="Node" parent="Enemies" unique_id=1383064118]
+
+[node name="Dung" parent="Enemies/Basics" unique_id=516051963 instance=ExtResource("6_y71pw")]
+position = Vector2(331, 167)
+
+[node name="Dung2" parent="Enemies/Basics" unique_id=1466626624 instance=ExtResource("6_y71pw")]
+position = Vector2(159, 40)

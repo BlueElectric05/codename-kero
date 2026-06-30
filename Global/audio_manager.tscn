@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://b2l0keqjnbx3m"]
+
+[ext_resource type="AudioStream" uid="uid://usog4mnj0okg" path="res://Asset/Audio/SFX/swallow.mp3" id="1_acu6l"]
+[ext_resource type="Script" uid="uid://dtjmv8xs40auk" path="res://Global/audio_manager.gd" id="1_k4uri"]
+[ext_resource type="AudioStream" uid="uid://5fnusomewcoo" path="res://Asset/Audio/SFX/step.mp3" id="2_k4uri"]
+[ext_resource type="AudioStream" uid="uid://iiquuuyseux" path="res://Asset/Audio/SFX/charge.ogg" id="2_tltgo"]
+[ext_resource type="AudioStream" uid="uid://cd6cv78w81l0n" path="res://Asset/Audio/SFX/superjump.ogg" id="5_meyp6"]
+
+[node name="AudioManager" type="Node" unique_id=366153569]
+script = ExtResource("1_k4uri")
+
+[node name="SFX" type="Node" parent="." unique_id=239869064]
+
+[node name="Charge" type="AudioStreamPlayer" parent="SFX" unique_id=309750756]
+stream = ExtResource("2_tltgo")
+bus = &"SFX"
+
+[node name="Swallow" type="AudioStreamPlayer" parent="SFX" unique_id=790362983]
+stream = ExtResource("1_acu6l")
+bus = &"SFX"
+
+[node name="Step" type="AudioStreamPlayer" parent="SFX" unique_id=1270623158]
+stream = ExtResource("2_k4uri")
+bus = &"SFX"
+
+[node name="Superjump" type="AudioStreamPlayer" parent="SFX" unique_id=742226058]
+stream = ExtResource("5_meyp6")
+bus = &"SFX"
