@@ -41,7 +41,7 @@ var current_state: State = State.IDLE
 @export var RESPAWN_FALL_Y: float = 256.0
 @export var RESPAWN_POSITION: Vector2 = Vector2(40, 40)
 
-@export var max_charge_time: float = 1.0
+@export var max_charge_time: float = 0.5
 
 # ==========================================
 # RUNTIME STATE
