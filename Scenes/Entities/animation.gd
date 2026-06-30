@@ -40,7 +40,7 @@ func _process(_delta: float) -> void:
 func determine_player_state() -> State:
 
 	# Hurt takes priority over everything else (lick, movement, etc.)
-	if player_controller.is_invulnerable and not player_controller.is_on_floor():
+	if player_controller.is_knockback and not player_controller.is_on_floor():
 		return State.HURT
 
 	# Keep locking the state if the lick animation is actively playing
@@ -57,7 +57,6 @@ func determine_player_state() -> State:
 			return State.WALK
 		else:
 			return State.IDLE
-			
 	# Airborne States
 	else: 
 		if Input.is_action_just_pressed("lick") and player_controller.roll_instance == null:

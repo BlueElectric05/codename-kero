@@ -79,23 +79,6 @@ tracks/0/keys = {
 "values": [11]
 }
 
-[sub_resource type="Animation" id="Animation_46t5s"]
-resource_name = "blinking"
-length = 0.06667
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:visible")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.033333335),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-
 [sub_resource type="Animation" id="Animation_86atj"]
 resource_name = "bloated_idle"
 length = 0.2
@@ -273,7 +256,6 @@ _data = {
 &"RESET": SubResource("Animation_v402d"),
 &"attack": SubResource("Animation_agccv"),
 &"attack_upfront": SubResource("Animation_g4oe6"),
-&"blinking": SubResource("Animation_46t5s"),
 &"bloated_idle": SubResource("Animation_86atj"),
 &"bloated_jump": SubResource("Animation_yu0ev"),
 &"bloated_walk": SubResource("Animation_td8ue"),
