@@ -84,7 +84,7 @@ func _physics_process(delta: float) -> void:
 	check_one_way_platforms()
 	
 	# --- Code-Based Blinking Mechanism ---
-	if is_invulnerable and anim_player.current_animation != "hurt":  # Only blink if not playing a specific invulnerability animation
+	if is_invulnerable and anim_player.current_animation != "hurt" and hp > 0:  # Only blink if not playing a specific invulnerability animation
 		blink_timer += delta
 		if blink_timer >= BLINK_INTERVAL:
 			blink_timer = 0.0
@@ -185,7 +185,12 @@ func state_attack() -> void:
 	velocity.x = lerp(velocity.x, 0.0, friction)
 
 func state_ko() -> void:
+	velocity.y = 0
 	velocity.x = lerp(velocity.x, 0.0, friction)
+	if anim_player.current_animation == "death":
+		if sprite.frame == 31:
+			Particles.play_effect("dustsplode", global_position)
+			sprite.visible = false
 
 # ==========================================
 # HELPER FUNCTIONS
@@ -194,7 +199,6 @@ func state_ko() -> void:
 func update_state_transitions() -> void:
 	if current_state == State.KO:
 		return
-
 	if not is_on_floor():
 		current_state = State.AIR
 	elif is_kneeling:

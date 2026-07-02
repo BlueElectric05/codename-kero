@@ -1,5 +1,5 @@
 extends Node2D
-enum State { IDLE, WALK, WALK_BLOATED, HOP, HOP_BLOATED, FALL, KNEEL, LICK, HURT }
+enum State { IDLE, WALK, WALK_BLOATED, HOP, HOP_BLOATED, FALL, KNEEL, LICK, HURT, DEATH }
 @export var player_controller: PlayerController
 @export var animplay: AnimationPlayer
 @export var sprite: Sprite2D
@@ -25,6 +25,12 @@ func _process(_delta: float) -> void:
 	var is_crouching = player_controller.is_kneeling and player_controller.is_on_floor()
 	collision_stand.disabled = is_crouching
 	collision_crouch.disabled = not is_crouching
+
+	if player_controller.hp <= 0:
+		collision_stand.disabled = true
+		collision_crouch.disabled = true
+		sprite.flip_h = false
+
 	
 	# --- State Machine Logic ---
 	var new_state = determine_player_state()
@@ -38,6 +44,9 @@ func _process(_delta: float) -> void:
 		animplay.speed_scale = max(current_speed / player_controller.SPEED, 0.25)
 
 func determine_player_state() -> State:
+
+	if player_controller.hp <= 0:
+		return State.DEATH
 
 	# Hurt takes priority over everything else (lick, movement, etc.)
 	if player_controller.is_knockback and not player_controller.is_on_floor():
@@ -95,3 +104,5 @@ func play_animation_for_state(state: State) -> void:
 			animplay.play("attack")
 		State.HURT:
 			animplay.play("hurt")
+		State.DEATH:
+			animplay.play("death")

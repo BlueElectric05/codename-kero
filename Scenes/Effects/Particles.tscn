@@ -48,3 +48,22 @@ initial_velocity_min = 10.0
 initial_velocity_max = 10.0
 anim_speed_min = 1.0
 anim_speed_max = 1.0
+
+[node name="dustsplode" type="CPUParticles2D" parent="." unique_id=1250378629]
+z_index = 1
+material = SubResource("CanvasItemMaterial_hvhbh")
+emitting = false
+amount = 4
+texture = ExtResource("2_4uk3o")
+one_shot = true
+speed_scale = 5.0
+explosiveness = 0.39
+use_fixed_seed = true
+seed = 3039789105
+emission_shape = 2
+emission_sphere_radius = 20.91
+gravity = Vector2(0, 0)
+initial_velocity_min = 20.0
+initial_velocity_max = 20.0
+anim_speed_min = 1.0
+anim_speed_max = 1.0
