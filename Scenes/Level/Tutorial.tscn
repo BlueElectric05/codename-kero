@@ -1878,7 +1878,7 @@ script = ExtResource("1_2pxma")
 
 [node name="Parallax2D2" type="Parallax2D" parent="." unique_id=110811461]
 texture_filter = 1
-scroll_scale = Vector2(0.8, 0.8)
+scroll_scale = Vector2(0.04, 0)
 repeat_size = Vector2(320, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="Parallax2D2" unique_id=1642624045]

@@ -2,6 +2,7 @@ extends Node2D
 class_name MapRoot
 
 func _ready() -> void:
+	AudioManager.mus_play(AudioManager.stage1)
 	call_deferred("_position_player")
 
 func _position_player() -> void:

@@ -19,7 +19,7 @@ func _process(_delta: float) -> void:
 		sprite.offset.x = 0
 	elif player_controller.direction == -1:
 		sprite.flip_h = true
-		sprite.offset.x = -3
+		sprite.offset.x = -5
 	
 	# --- Collision Toggling (Crouch / Stand) ---
 	var is_crouching = player_controller.is_kneeling and player_controller.is_on_floor()
@@ -79,6 +79,12 @@ func play_animation_for_state(state: State) -> void:
 		State.IDLE:
 			animplay.play("idle")
 			sprite.offset.y = 0
+			if player_controller.direction == 1:
+				sprite.flip_h = false
+				sprite.offset.x = 0
+			elif player_controller.direction == -1:
+				sprite.flip_h = true
+				sprite.offset.x = -3
 		State.WALK:
 			animplay.play("walk")
 			sprite.offset.y = 0
