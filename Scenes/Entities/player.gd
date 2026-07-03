@@ -5,7 +5,7 @@ class_name PlayerController
 # STATE
 # ==========================================
 
-enum State { IDLE, MOVE, AIR, KNEEL, ATTACK, KO }
+enum State { IDLE, MOVE, AIR, KNEEL, ATTACK, KO, SWING }
 var current_state: State = State.IDLE
 
 # ==========================================
@@ -17,12 +17,18 @@ var current_state: State = State.IDLE
 @onready var inv_timer: Timer = $Invulnerability
 @onready var anim_player: AnimationPlayer = $Animation/AnimationPlayer  
 @onready var charge: CPUParticles2D = $charge
+@onready var tongue_rope: Line2D = $TongueRope
+@onready var tongue_hitbox: Area2D = $TongueHitbox
 
 # ==========================================
 # TUNING / EXPORTS
 # ==========================================
 
 @export var SPEED: int = 140
+@export var max_tongue_length: float = 80.0
+@export var tongue_attack_duration: float = 0.3
+@export var max_swing_distance: float = 120.0
+@export var swing_acceleration: float = 450.0
 @export var SPEED_BLOATED: int = 80
 @export var JUMP_VELOCITY: int = -400
 @export var CHARGED_JUMP_VELOCITY: int = -600
@@ -57,6 +63,14 @@ var is_kneeling: bool = false
 var was_in_air: bool = false
 var can_jump: bool = true
 var is_attacking: bool = false
+var _hit_enemies_this_attack: Array = []
+var tongue_attack_timer: float = 0.0
+
+var is_swinging: bool = false
+var swing_anchor: Vector2 = Vector2.ZERO
+var rope_length: float = 0.0
+var _swing_timer: float = 0.0
+var has_swung_this_jump: bool = false
 var on_platform_layer: bool = false
 var is_ko: bool = false
 var is_invulnerable: bool = false
@@ -75,13 +89,31 @@ func _ready() -> void:
 	inv_timer.wait_time = INVULN_TIME
 	inv_timer.one_shot = true
 	inv_timer.timeout.connect(_on_invuln_timer_timeout)
+	tongue_hitbox.body_entered.connect(_on_tongue_body_entered)
 
 func _physics_process(delta: float) -> void:
 	# 1. GLOBAL CHECKS (happen regardless of state)
 	handle_respawn()
-	apply_gravity()
+	if is_on_floor():
+		has_swung_this_jump = false
+	if not is_swinging:
+		apply_gravity()
 	update_inputs()
 	check_one_way_platforms()
+	
+	# --- Lick & Swing Input Check ---
+	if not is_ko and roll_instance == null:
+		if not is_attacking and not is_swinging:
+			if Input.is_action_just_pressed("lick"):
+				_start_tongue_attack()
+			elif Input.is_action_just_pressed("swing") or Input.is_key_pressed(KEY_E):
+				_try_start_swing()
+				
+	if is_attacking:
+		_update_tongue_attack(delta)
+	elif is_swinging:
+		_swing_timer += delta
+		_draw_swing_tongue()
 	
 	# --- Code-Based Blinking Mechanism ---
 	if is_invulnerable and anim_player.current_animation != "hurt" and hp > 0:  # Only blink if not playing a specific invulnerability animation
@@ -116,6 +148,8 @@ func _physics_process(delta: float) -> void:
 			state_attack()
 		State.KO:
 			state_ko()
+		State.SWING:
+			state_swing(delta)
 
 	if was_in_air and current_state != State.AIR:
 		_on_landed()
@@ -199,6 +233,12 @@ func state_ko() -> void:
 func update_state_transitions() -> void:
 	if current_state == State.KO:
 		return
+	if is_swinging:
+		current_state = State.SWING
+		return
+	if is_attacking:
+		current_state = State.ATTACK
+		return
 	if not is_on_floor():
 		current_state = State.AIR
 	elif is_kneeling:
@@ -210,6 +250,9 @@ func update_state_transitions() -> void:
 
 func update_inputs() -> void:
 	if is_knockback:
+		direction = 0
+		return
+	if is_attacking:
 		direction = 0
 		return
 
@@ -306,3 +349,196 @@ func _on_invuln_timer_timeout() -> void:
 
 func _on_coyote_timer_timeout() -> void:
 	can_jump = false
+
+# ==========================================
+# TONGUE ATTACK & SWING MECHANICS
+# ==========================================
+
+func _start_tongue_attack() -> void:
+	is_attacking = true
+	tongue_attack_timer = 0.0
+	_hit_enemies_this_attack.clear()
+	tongue_hitbox.monitoring = true
+	tongue_rope.visible = true
+	AudioManager.play_unique(AudioManager.swallow)
+
+func _update_tongue_attack(delta: float) -> void:
+	tongue_attack_timer += delta
+	var progress := tongue_attack_timer / tongue_attack_duration
+	if progress >= 1.0:
+		_end_tongue_attack()
+		return
+
+	var mouth_pos := get_mouth_local_position()
+	var target_offset := Vector2(max_tongue_length * last_facing, 0.0)
+	var tongue_target_pos := mouth_pos + target_offset
+
+	var ext_point := Vector2.ZERO
+	if progress < 0.4:
+		var ratio := progress / 0.4
+		ext_point = mouth_pos.lerp(tongue_target_pos, ratio)
+	elif progress < 0.6:
+		ext_point = tongue_target_pos
+	else:
+		var ratio := (1.0 - progress) / 0.4
+		ext_point = mouth_pos.lerp(tongue_target_pos, max(0.0, ratio))
+
+	tongue_rope.points = PackedVector2Array([mouth_pos, ext_point])
+	tongue_hitbox.position = ext_point
+	queue_redraw()
+
+func _end_tongue_attack() -> void:
+	is_attacking = false
+	tongue_hitbox.monitoring = false
+	tongue_rope.visible = false
+	queue_redraw()
+
+func _on_tongue_body_entered(body: Node2D) -> void:
+	if body == self:
+		return
+	if body in _hit_enemies_this_attack:
+		return
+	_hit_enemies_this_attack.append(body)
+	if body.has_method("reduceHp"):
+		body.reduceHp()
+
+func _try_start_swing() -> void:
+	if is_on_floor():
+		print("[SWING] Cannot swing while on the floor.")
+		return
+	if has_swung_this_jump:
+		print("[SWING] Already swung during this jump. Reset on floor contact.")
+		return
+		
+	print("[SWING] Attempting swing. Player position: ", global_position)
+	var anchor = get_closest_swing_point()
+	if anchor != Vector2.ZERO:
+		is_swinging = true
+		has_swung_this_jump = true
+		_swing_timer = 0.0
+		swing_anchor = anchor
+		rope_length = global_position.distance_to(swing_anchor)
+		rope_length = clamp(rope_length, 40.0, max_swing_distance)
+		print("[SWING] Grappled! Anchor at: ", swing_anchor, " rope_length: ", rope_length)
+		AudioManager.play_unique(AudioManager.swallow)
+	else:
+		print("[SWING] No close swing point anchor found within range.")
+
+func _update_swing(delta: float) -> void:
+	velocity.y += GRAVITY * delta
+	var rope_vector = global_position - swing_anchor
+	var distance = rope_vector.length()
+	
+	if direction != 0:
+		var tangent = Vector2(-rope_vector.y, rope_vector.x).normalized()
+		if tangent.dot(Vector2(direction, 0)) < 0:
+			tangent = -tangent
+		velocity += tangent * swing_acceleration * delta
+
+	if distance >= rope_length:
+		global_position = swing_anchor + rope_vector.normalized() * rope_length
+		var direction_to_anchor = -rope_vector.normalized()
+		var radial_vel = velocity.dot(direction_to_anchor)
+		if radial_vel < 0:
+			velocity -= radial_vel * direction_to_anchor
+
+func _draw_swing_tongue() -> void:
+	var mouth_pos := get_mouth_local_position()
+	tongue_rope.points = PackedVector2Array([mouth_pos, to_local(swing_anchor)])
+	tongue_rope.visible = true
+
+func _release_swing(boost: bool) -> void:
+	print("[SWING] Releasing swing hook.")
+	is_swinging = false
+	tongue_rope.visible = false
+	if boost:
+		velocity.y = JUMP_VELOCITY * 0.85
+		velocity.x += last_facing * 120.0
+	can_jump = true
+	current_state = State.AIR
+
+func state_swing(delta: float) -> void:
+	_update_swing(delta)
+	
+	# Release swing immediately if player lands on the floor or swings above the anchor
+	if is_on_floor() or global_position.y < swing_anchor.y - 10.0:
+		_release_swing(false)
+		return
+		
+	# Release swing if hop action is pressed, OR if swing action is pressed, OR if raw key E is pressed after a minor buffer
+	var release_pressed := Input.is_action_just_pressed("hop") or Input.is_action_just_pressed("swing")
+	if not release_pressed and Input.is_key_pressed(KEY_E) and _swing_timer > 0.2:
+		release_pressed = true
+		
+	if release_pressed:
+		_release_swing(true)
+
+func get_closest_swing_point() -> Vector2:
+	var player_pos = global_position
+	var start_pos = global_position + get_mouth_local_position()
+	var closest_pos = Vector2.ZERO
+	var min_dist = 999999.0
+	
+	var space_state := get_world_2d().direct_space_state
+	
+	# 1. Search manual SwingPoint group nodes (like in Tutorial)
+	var swing_nodes := get_tree().get_nodes_in_group("swing_point")
+	for swing_node in swing_nodes:
+		var shapes = swing_node.find_children("*", "CollisionShape2D", true, false)
+		for child in shapes:
+			if player_pos.y < child.global_position.y - 10.0:
+				continue
+			var dist = player_pos.distance_to(child.global_position)
+			if dist < min_dist:
+				# Cast a ray to verify line of sight (Terrain layer is 16)
+				var query = PhysicsRayQueryParameters2D.create(start_pos, child.global_position, 16)
+				var result = space_state.intersect_ray(query)
+				if result.is_empty():
+					min_dist = dist
+					closest_pos = child.global_position
+				
+	# 2. Search TileMapLayer for painted Swingqodrul tiles dynamically
+	var tilemap = get_parent().find_child("TileMapLayer", true, false) if get_parent() else null
+	if tilemap and tilemap.tile_set:
+		var tileset = tilemap.tile_set
+		var swing_sources := []
+		for i in range(tileset.get_source_count()):
+			var source_id = tileset.get_source_id(i)
+			var source = tileset.get_source(source_id)
+			if source is TileSetAtlasSource:
+				var tex = source.texture
+				if tex and tex.resource_path.contains("Swingqodrul"):
+					swing_sources.append(source_id)
+					
+		if swing_sources.size() > 0:
+			for cell in tilemap.get_used_cells():
+				var source_id = tilemap.get_cell_source_id(cell)
+				if source_id in swing_sources:
+					var local_pos = tilemap.map_to_local(cell)
+					local_pos.y += 8.0  # Align to the bottom visual hook point
+					var global_pos = tilemap.to_global(local_pos)
+					if player_pos.y < global_pos.y - 10.0:
+						continue
+					var dist = player_pos.distance_to(global_pos)
+					if dist < min_dist:
+						# Cast a ray to verify line of sight (Terrain layer is 16)
+						var query = PhysicsRayQueryParameters2D.create(start_pos, global_pos, 16)
+						var result = space_state.intersect_ray(query)
+						if result.is_empty():
+							min_dist = dist
+							closest_pos = global_pos
+						
+	if min_dist <= max_swing_distance:
+		print("[SWING] Success! Closest anchor found at: ", closest_pos, " dist: ", min_dist)
+		return closest_pos
+	
+	print("[SWING] Closest swing point is too far, blocked by terrain, or player is above it. Distance: ", min_dist)
+	return Vector2.ZERO
+
+func get_mouth_local_position() -> Vector2:
+	var offset_x := 8.0 if last_facing == 1 else -8.0
+	return Vector2(offset_x, -18.0)
+
+func _draw() -> void:
+	if is_attacking and tongue_rope.visible and tongue_rope.points.size() > 1:
+		draw_circle(tongue_rope.points[1], 3.0, Color(0.88, 0.33, 0.42, 1))

@@ -52,15 +52,13 @@ func determine_player_state() -> State:
 	if player_controller.is_knockback and not player_controller.is_on_floor():
 		return State.HURT
 
-	# Keep locking the state if the lick animation is actively playing
-	if current_state == State.LICK and animplay.is_playing():
+	# Keep locking the state if the player is actively attacking or swinging
+	if player_controller.is_attacking or player_controller.is_swinging:
 		return State.LICK
 		
 	# Grounded States
 	if player_controller.is_on_floor():
-		if Input.is_action_just_pressed("lick") and player_controller.roll_instance == null:
-			return State.LICK
-		elif player_controller.is_kneeling: 
+		if player_controller.is_kneeling: 
 			return State.KNEEL
 		elif player_controller.direction != 0:
 			return State.WALK
@@ -68,9 +66,7 @@ func determine_player_state() -> State:
 			return State.IDLE
 	# Airborne States
 	else: 
-		if Input.is_action_just_pressed("lick") and player_controller.roll_instance == null:
-			return State.LICK
-		elif player_controller.velocity.y < 0:
+		if player_controller.velocity.y < 0:
 			return State.HOP
 		else:
 			return State.FALL
