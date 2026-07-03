@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c8by7hkmokxeb" path="res://Scenes/Level/map_2.gd" id="1_n2lvd"]
 [ext_resource type="Texture2D" uid="uid://b27gnuwddac6i" path="res://Asset/Sprites/Background/Platform1.png" id="1_yjxmq"]
+[ext_resource type="Texture2D" uid="uid://bxrkacsluaedb" path="res://Asset/Sprites/Background/mud_mine.png" id="2_5humk"]
 [ext_resource type="Texture2D" uid="uid://cg45vxr8xwcte" path="res://Asset/Sprites/Background/EdgeQodrul.png" id="2_n2lvd"]
 [ext_resource type="Texture2D" uid="uid://byk85xn4lj1a7" path="res://Asset/Sprites/Background/Stalagmite.png" id="3_5humk"]
 [ext_resource type="Texture2D" uid="uid://cmh4bxt36fmn4" path="res://Asset/Sprites/Background/Swingqodrul.png" id="4_x4m4c"]
@@ -69,8 +70,21 @@ sources/1 = SubResource("TileSetAtlasSource_3f1wv")
 sources/2 = SubResource("TileSetAtlasSource_y5bd7")
 sources/3 = SubResource("TileSetAtlasSource_rtl7s")
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_n2lvd"]
+radius = 15.033297
+
 [node name="Map2" type="Node2D" unique_id=355406710]
 script = ExtResource("1_n2lvd")
+
+[node name="Parallax2D2" type="Parallax2D" parent="." unique_id=2121636833]
+texture_filter = 1
+scroll_scale = Vector2(0.8, 0.8)
+repeat_size = Vector2(320, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Parallax2D2" unique_id=1822315627]
+position = Vector2(164.00002, 131)
+scale = Vector2(1.0015632, 1.2)
+texture = ExtResource("2_5humk")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=2099629935]
 physics_interpolation_mode = 1
@@ -82,3 +96,32 @@ position = Vector2(32, -2)
 
 [node name="Player" parent="." unique_id=1217367855 groups=["player"] instance=ExtResource("5_a605e")]
 position = Vector2(101, -1)
+
+[node name="SwingPoint" type="Node2D" parent="." unique_id=348249561 groups=["swing_point"]]
+
+[node name="Area2D" type="Area2D" parent="SwingPoint" unique_id=1740416390]
+position = Vector2(332, 2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SwingPoint/Area2D" unique_id=1789216896]
+light_mask = 0
+visibility_layer = 4
+position = Vector2(-12, -106)
+shape = SubResource("CircleShape2D_n2lvd")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="SwingPoint/Area2D" unique_id=816586171]
+light_mask = 0
+visibility_layer = 4
+position = Vector2(2400, -70)
+shape = SubResource("CircleShape2D_n2lvd")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="SwingPoint/Area2D" unique_id=1273956772]
+light_mask = 0
+visibility_layer = 4
+position = Vector2(2560, -71)
+shape = SubResource("CircleShape2D_n2lvd")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="SwingPoint/Area2D" unique_id=162227837]
+light_mask = 0
+visibility_layer = 4
+position = Vector2(2702, -70)
+shape = SubResource("CircleShape2D_n2lvd")
