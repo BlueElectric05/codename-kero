@@ -41,23 +41,23 @@ func _physics_process(delta):
 		
 		
 		if is_moving:
-			animation.play("walk")
+			play_anim("walk")
 			velocity.x = direction * SPEED
 		elif not is_moving and hp <= 0:
-			animation.play("hurt")
-			hitbox.disabled = true
+			play_anim("hurt")
+			hitbox.set_deferred("disabled", true)
 		else:
-			animation.play("idle")
+			play_anim("idle")
 			velocity.x = 0
 	
 	move_and_slide()
 	
 	if knockback_time == 0 and not hitbox.disabled:
 		animation.visible = true
-		hitbox.disabled = false
+		hitbox.set_deferred("disabled", false)
 		
 	if hp == 0:
-		collision_shape.disabled = true
+		collision_shape.set_deferred("disabled", true)
 
 func _on_timerwalk_timeout():
 	is_moving = false
@@ -72,7 +72,7 @@ func _on_timerstop_timeout():
 	timerstop.stop()
 
 func reduceHp():
-	animation.play("hurt")
+	play_anim("hurt")
 	hp -= 1
 	if hp > 0:
 		knockback()
@@ -83,14 +83,14 @@ func knockback():
 	knockback_time = KNOCKBACK_DURATION
 	blink_timer = BLINK_INTERVAL
 	velocity.x = -direction * KNOCKBACK_FORCE
-	hitbox.disabled = true
+	hitbox.set_deferred("disabled", true)
 
 func dead():
-	hitbox.disabled = true
+	hitbox.set_deferred("disabled", true)
 	knockback()
-	animation.play("hurt")
+	play_anim("hurt")
 	if hp <= 0:
-		hitbox.disabled = true
+		hitbox.set_deferred("disabled", true)
 		is_moving = false
 
 
@@ -101,3 +101,11 @@ func _on_die_finished():
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.name == "Player" : 
 		body.reduceHP()
+
+func play_anim(anim_name: String) -> void:
+	if animation.sprite_frames.has_animation(anim_name):
+		animation.play(anim_name)
+	elif anim_name == "hurt" and animation.sprite_frames.has_animation("captured"):
+		animation.play("captured")
+	else:
+		animation.play("idle")
