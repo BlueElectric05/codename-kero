@@ -1,0 +1,55 @@
+[gd_scene format=4 uid="uid://w4d6wl5dgduy"]
+
+[ext_resource type="Texture2D" uid="uid://s6qc7a5gkb4a" path="res://Asset/Sprites/Background/root_factory.png" id="1_m4j0x"]
+[ext_resource type="Texture2D" uid="uid://c3gam2jwt7syd" path="res://Asset/Sprites/Background/root_factory_front.png" id="2_yeonf"]
+[ext_resource type="Texture2D" uid="uid://ueuua05gtaw7" path="res://Asset/Sprites/Background/Tilesroot.png" id="3_fhrsu"]
+[ext_resource type="PackedScene" uid="uid://b54xy4sboh0dx" path="res://Scenes/Entities/Player.tscn" id="4_cxyhx"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3rtnf"]
+texture = ExtResource("3_fhrsu")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:0/0/physics_layer_0/polygon_0/one_way = true
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0/physics_layer_0/polygon_0/one_way = true
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:0/0/physics_layer_0/polygon_0/one_way = true
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:0/0/physics_layer_0/polygon_0/one_way = true
+
+[sub_resource type="TileSet" id="TileSet_rqonx"]
+physics_layer_0/collision_layer = 16
+physics_layer_0/collision_mask = 48
+sources/0 = SubResource("TileSetAtlasSource_3rtnf")
+
+[node name="RootCompany" type="Node2D" unique_id=259350830]
+
+[node name="Parallax2D3" type="Parallax2D" parent="." unique_id=197444413]
+texture_filter = 1
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(640, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Parallax2D3" unique_id=784387309]
+position = Vector2(42.5, 138)
+scale = Vector2(1.0015632, 1.2)
+texture = ExtResource("1_m4j0x")
+
+[node name="Parallax2D2" type="Parallax2D" parent="." unique_id=352659323]
+texture_filter = 1
+scroll_scale = Vector2(0.8, 0.8)
+repeat_size = Vector2(640, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Parallax2D2" unique_id=1505282138]
+position = Vector2(42.5, 138)
+scale = Vector2(1.0015632, 1.2)
+texture = ExtResource("2_yeonf")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1491422853]
+tile_map_data = PackedByteArray("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")
+tile_set = SubResource("TileSet_rqonx")
+
+[node name="Player" parent="." unique_id=1217367855 instance=ExtResource("4_cxyhx")]
+position = Vector2(68, 153)
