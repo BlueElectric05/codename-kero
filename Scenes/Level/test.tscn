@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://bivxvk7ndp2un"]
 
-[ext_resource type="PackedScene" uid="uid://b54xy4sboh0dx" path="res://Scenes/Entities/Player.tscn" id="1_afwlc"]
+[ext_resource type="PackedScene" uid="uid://b54xy4sboh0dx" path="res://Scenes/Entities/Player/Player.tscn" id="1_afwlc"]
 [ext_resource type="Texture2D" uid="uid://b8qhlhp56mmwq" path="res://Asset/Sprites/Background/stonetile.bmp" id="2_4h52f"]
 [ext_resource type="Texture2D" uid="uid://bcq48kdhtq4f1" path="res://Asset/Sprites/User Interface/healthbar-quantized.png" id="3_suyhb"]
 [ext_resource type="Texture2D" uid="uid://d00be6ktyke3q" path="res://Asset/Sprites/User Interface/heartspin.png" id="4_ulvnh"]

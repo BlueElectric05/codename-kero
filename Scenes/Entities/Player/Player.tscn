@@ -1,10 +1,15 @@
 [gd_scene format=3 uid="uid://b54xy4sboh0dx"]
 
 [ext_resource type="Texture2D" uid="uid://2qi7o0uyi4h" path="res://Asset/Sprites/Characters/kaeru-anim.png" id="1_3kvya"]
-[ext_resource type="Script" uid="uid://cqy0si7f4eixd" path="res://Scenes/Entities/player.gd" id="1_agccv"]
-[ext_resource type="Script" uid="uid://bp6p3j1hgila8" path="res://Scenes/Entities/animation.gd" id="2_g4oe6"]
+[ext_resource type="Script" uid="uid://cqy0si7f4eixd" path="res://Scenes/Entities/Player/player.gd" id="1_agccv"]
+[ext_resource type="Script" uid="uid://bp6p3j1hgila8" path="res://Scenes/Entities/Player/animation.gd" id="2_g4oe6"]
 [ext_resource type="Shader" uid="uid://m0hxm3ktxmh2" path="res://Shaders/palette_switcher.gdshader" id="3_g4oe6"]
 [ext_resource type="Texture2D" uid="uid://cusqwkrgo6enn" path="res://Asset/Sprites/Effects/charge_glow.png" id="5_86atj"]
+[ext_resource type="Script" uid="uid://comfqxd14a2i5" path="res://Scenes/Entities/Player/tongue.gd" id="6_hi4ft"]
+[ext_resource type="Texture2D" uid="uid://de42u105tqev1" path="res://Asset/Sprites/Effects/tonguetip.png" id="6_yu0ev"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_td8ue"]
+size = Vector2(10, 10)
 
 [sub_resource type="Animation" id="Animation_v402d"]
 length = 0.001
@@ -318,12 +323,27 @@ size = Vector2(13.5, 30)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3kvya"]
 size = Vector2(15, 20)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_tongue"]
-radius = 6.0
-
 [node name="Player" type="CharacterBody2D" unique_id=1217367855]
 collision_mask = 48
 script = ExtResource("1_agccv")
+
+[node name="Tongue" type="Node2D" parent="." unique_id=42863901]
+position = Vector2(-1, -21)
+script = ExtResource("6_hi4ft")
+
+[node name="Line2D" type="Line2D" parent="Tongue" unique_id=1524735495]
+points = PackedVector2Array(0, 1)
+width = 2.0
+default_color = Color(1, 0.42352942, 0.42352942, 1)
+
+[node name="TipSprite" type="Sprite2D" parent="Tongue" unique_id=1457264901]
+texture = ExtResource("6_yu0ev")
+
+[node name="Hitbox" type="Area2D" parent="Tongue/TipSprite" unique_id=1916317183]
+collision_mask = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tongue/TipSprite/Hitbox" unique_id=1329414404]
+shape = SubResource("RectangleShape2D_td8ue")
 
 [node name="Animation" type="Node2D" parent="." unique_id=1781964627 node_paths=PackedStringArray("player_controller", "animplay", "sprite")]
 script = ExtResource("2_g4oe6")
@@ -376,18 +396,5 @@ gravity = Vector2(0, 0)
 initial_velocity_min = 30.0
 initial_velocity_max = 30.0
 
-[node name="TongueRope" type="Line2D" parent="." unique_id=1779999760]
-visible = false
-width = 2.0
-default_color = Color(0.88, 0.33, 0.42, 1)
-
-[node name="TongueHitbox" type="Area2D" parent="." unique_id=1702405191]
-collision_layer = 0
-collision_mask = 32
-monitoring = false
-monitorable = false
-
-[node name="TongueShape" type="CollisionShape2D" parent="TongueHitbox" unique_id=596942241]
-shape = SubResource("CircleShape2D_tongue")
-
+[connection signal="body_entered" from="Tongue/TipSprite/Hitbox" to="Tongue" method="_on_hitbox_body_entered"]
 [connection signal="timeout" from="Invulnerability" to="." method="_on_invulnerability_timeout"]
