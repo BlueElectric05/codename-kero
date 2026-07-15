@@ -21,8 +21,10 @@ const PROJECTILE_LIFETIME = 2.0
 @onready var collision_shape = $Area2D/HurtBox
 @onready var hitbox = $HitBox
 @onready var player : PlayerController = get_tree().get_first_node_in_group("player")
+@onready var ledge_detector: RayCast2D = $RayCast2D
 
 @export var gravity : int = 700
+@export var ledge_detect_distance : int = 8
 var is_moving = true
 
 var hp = 2
@@ -73,9 +75,24 @@ func _physics_process(delta):
 	if knockback_time > 0:
 		knockback_time -= delta
 	else:
+		animation.visible = true
 		if is_moving:
-			play_anim("walk")
-			velocity.x = direction * SPEED
+			ledge_detector.position.x = direction * ledge_detect_distance
+			ledge_detector.force_raycast_update()
+
+			if not ledge_detector.is_colliding() and is_on_floor():
+				direction *= -1
+				animation.flip_h = !animation.flip_h
+				ledge_detector.position.x = direction * ledge_detect_distance
+				ledge_detector.force_raycast_update()
+				timerwalk.stop()
+				timerstop.start()
+			else:
+				play_anim("walk")
+				velocity.x = direction * SPEED
+		elif not is_moving and hp <= 0:
+			play_anim("hurt")
+			hitbox.set_deferred("disabled", true)
 		else:
 			play_anim("idle")
 			velocity.x = 0
@@ -149,7 +166,7 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 			return
 		if body.is_in_group("enemies") and body != self:
 			if body.has_method("reduceHp"):
-				body.reduceHp()
+				body.reduceHp(direction)
 			queue_free()
 		return
 
