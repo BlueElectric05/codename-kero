@@ -79,7 +79,7 @@ var spit_timer: float = 0.0        # Counts down during the spit attack
 
 func _ready() -> void:
 	hp = max_hp
-
+	add_to_group("player")
 	inv_timer.wait_time = INVULN_TIME
 	inv_timer.one_shot = true
 	inv_timer.timeout.connect(_on_invuln_timer_timeout)
@@ -113,7 +113,6 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("lick") and not is_knockback and current_state != State.KO and current_state != State.ATTACK and current_state != State.KNEEL:
 		if is_bloated:
-			# Bloated: attack button spits the eaten enemy instead of using the tongue
 			if tongue.current_state == TongueAttack.TongueState.INACTIVE:
 				current_state = State.ATTACK
 				_start_spit_attack()
@@ -254,7 +253,9 @@ func update_inputs() -> void:
 		return
 
 	direction = Input.get_axis("left", "right")
-	is_kneeling = Input.is_action_pressed("kneel")
+
+	if not is_bloated:
+		is_kneeling = Input.is_action_pressed("kneel")
 
 	if direction != 0:
 		last_facing = int(sign(direction))
@@ -313,20 +314,6 @@ func _reset_charge_visual() -> void:
 func reduceHP() -> void:
 	if is_invulnerable:
 		return  
-
-	if is_bloated:
-		# Bloated players die instantly on contact with another enemy:
-		# the eaten enemy is lost, the player is knocked back, and dies on the spot.
-		is_bloated = false
-		if is_instance_valid(last_eaten_enemy):
-			last_eaten_enemy.queue_free()
-		last_eaten_enemy = null
-		apply_knockback()
-		AudioManager.play_unique(AudioManager.ouch)
-		hp = 0
-		progress_bar.value = hp
-		is_ko = true
-		return
 
 	hp -= 1
 	progress_bar.value = hp

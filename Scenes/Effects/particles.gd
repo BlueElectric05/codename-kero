@@ -4,6 +4,7 @@ extends Node2D
 @onready var dust2 = $dust2
 @onready var charge = $charge
 @onready var dustsplode = $dustsplode
+@onready var spark = $spark
 
 func play_effect(effect_name: String, position: Vector2):
 	var effect: Node2D = null
@@ -17,6 +18,8 @@ func play_effect(effect_name: String, position: Vector2):
 			effect = charge
 		"dustsplode":
 			effect = dustsplode
+		"spark":
+			effect = spark
 
 	if effect:
 		effect.global_position = position

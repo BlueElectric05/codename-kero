@@ -5,32 +5,34 @@ var offSet = Vector2(0, 8)
 
 var direction = 1
 const SPEED = 30.0
-const KNOCKBACK_FORCE = 60.0
-const KNOCKBACK_DURATION = 0.1
-const BLINK_INTERVAL = 0.01
+@export var KNOCKBACK_FORCE_MIN: float = 40.0
+@export var KNOCKBACK_FORCE_MAX: float = 90.0
+@export var KNOCKBACK_DURATION: float = 1.0
+@export var DEATH_FRICTION: float = 0.15 
 
 # --- Projectile (post-swallow) tuning ---
 const PROJECTILE_SPEED = 220.0
 const PROJECTILE_LIFETIME = 2.0
 
 @onready var animation = $AnimatedSprite2D
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var timerwalk = $Timerwalk
 @onready var timerstop = $Timerstop
 @onready var collision_shape = $Area2D/HurtBox
 @onready var hitbox = $HitBox
-@onready var player = %Player
+@onready var player : PlayerController = get_tree().get_first_node_in_group("player")
 
 @export var gravity : int = 700
 var is_moving = true
 
 var hp = 2
 var knockback_time = 0.0
-var blink_timer = 0.0
 var is_caught = false  # Guard flag to stop enemy movement calculations immediately
 
 var is_swallowed = false   # True while dormant inside the player, waiting to be spat out
 var is_projectile = false  # True while flying back out as the player's spit attack
 var _projectile_timer = 0.0
+var is_dead = false
 
 func _ready():
 	add_to_group("enemies")
@@ -41,50 +43,44 @@ func _ready():
 	animation.flip_h = false
 
 func _physics_process(delta):
-	# Dormant inside the player after being swallowed - do nothing until fired
 	if is_swallowed:
 		return
 
-	# Flying back out as the player's spit attack
 	if is_projectile:
 		_process_projectile(delta)
 		return
 
-	# If caught by the tongue, lock to catcher's position and skip regular AI/physics
 	if is_caught and catcher:
-		global_position = catcher.global_position
-		
-		# Detect when the tongue has fully re-entered the player's mouth (INACTIVE state)
+		global_position = catcher.global_position + offSet
 		if player and player.tongue.current_state == TongueAttack.TongueState.INACTIVE:
 			_get_swallowed()
 		return
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
-	
+
+	# --- DEAD: locked into death pose forever, just let physics settle ---
+	if is_dead:
+		animation.visible = true
+		play_anim("hurt")
+		if knockback_time > 0:
+			knockback_time -= delta
+		else:
+			velocity.x = lerp(velocity.x, 0.0, DEATH_FRICTION)   # slide to a stop, don't drift forever
+		move_and_slide()
+		return
+
 	if knockback_time > 0:
 		knockback_time -= delta
-		blink_timer -= delta
-		if blink_timer <= 0:
-			animation.visible = not animation.visible
-			blink_timer = BLINK_INTERVAL
 	else:
-		animation.visible = true
-		
 		if is_moving:
 			play_anim("walk")
 			velocity.x = direction * SPEED
-		elif not is_moving and hp <= 0:
-			play_anim("hurt")
-			hitbox.set_deferred("disabled", true)
 		else:
 			play_anim("idle")
 			velocity.x = 0
-	
+
 	move_and_slide()
-	
-	if hp == 0:
-		collision_shape.set_deferred("disabled", true)
 
 func _on_timerwalk_timeout():
 	if is_caught: return
@@ -100,27 +96,32 @@ func _on_timerstop_timeout():
 	timerwalk.start()
 	timerstop.stop()
 
-func reduceHp():
-	play_anim("hurt")
+func reduceHp(hit_dir: int = 0):
+	if is_dead:
+		return  
 	hp -= 1
-	if hp > 0:
-		knockback()
-	else:
+	knockback(hit_dir)  
+	if hp <= 0:
 		dead()
+	else:
+		play_anim("hurt")
 
-func knockback():
+func knockback(hit_dir: int = 0):
+	Particles.play_effect("spark", global_position)
 	knockback_time = KNOCKBACK_DURATION
-	blink_timer = BLINK_INTERVAL
-	velocity.x = -direction * KNOCKBACK_FORCE
+	var force = randf_range(KNOCKBACK_FORCE_MIN, KNOCKBACK_FORCE_MAX)
+	var dir = hit_dir if hit_dir != 0 else direction
+	velocity.x = dir * force
 	hitbox.set_deferred("disabled", true)
 
 func dead():
+	is_dead = true
+	is_moving = false
+	timerwalk.stop()
+	timerstop.stop()
 	hitbox.set_deferred("disabled", true)
-	knockback()
+	collision_shape.set_deferred("disabled", true)
 	play_anim("hurt")
-	if hp <= 0:
-		hitbox.set_deferred("disabled", true)
-		is_moving = false
 
 # This matches the method requested by your tongue system script: body.get_caught(tip_sprite)
 func get_caught(new_catcher: Node2D):
@@ -143,7 +144,6 @@ func _on_die_finished():
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if is_caught: return
 
-	# While flying back out as a projectile: hurt other enemies, ignore the player who fired us
 	if is_projectile:
 		if body == player:
 			return
@@ -165,50 +165,49 @@ func play_anim(anim_name: String) -> void:
 		animation.play("idle")
 
 # ==========================================
-# SWALLOW / SPIT (bloated player mechanic)
+# SWALLOW / SPIT
 # ==========================================
 
-# Called once the tongue has fully retracted with this enemy caught in it.
-# Instead of being destroyed, the enemy goes dormant and hides inside the
-# player until it's fired back out as the "spit" attack.
 func _get_swallowed() -> void:
-	print("swallowed called, player = ", player)
 	is_caught = false
 	is_swallowed = true
 	visible = false
 	velocity = Vector2.ZERO
+	AudioManager.play_unique(AudioManager.swallow)
+	if not player:
+		push_warning("Dung swallowed but no player reference found (missing 'player' group?)")
+		return
 
-	if player:
-		if "last_eaten_enemy" in player:
-			player.last_eaten_enemy = self
-		if "is_bloated" in player:
-			player.is_bloated = true
+	if "last_eaten_enemy" in player:
+		player.last_eaten_enemy = self
+	if "is_bloated" in player:
+		player.is_bloated = true
 
-# Called by PlayerController when the bloated player uses their attack.
-# Reactivates this same enemy instance as a projectile fired from `origin`
-# in `facing_direction` (1 = right, -1 = left).
+
 func fire_as_projectile(facing_direction: int, origin: Vector2) -> void:
 	is_swallowed = false
 	is_projectile = true
 	visible = true
-	global_position = origin
+	global_position = origin + offSet
 
 	direction = facing_direction if facing_direction != 0 else 1
 	animation.flip_h = direction < 0
 	velocity = Vector2(direction * PROJECTILE_SPEED, 0)
 	_projectile_timer = PROJECTILE_LIFETIME
 
-	# Keep the tongue-catch hitbox off, but re-enable the body hurtbox so this
-	# can register hits against other enemies while it flies.
 	hitbox.set_deferred("disabled", true)
 	collision_shape.set_deferred("disabled", false)
 
-	play_anim("walk")
+	play_anim("spat")
+	animation_player.play("spin")
 
 func _process_projectile(delta: float) -> void:
-	# Straight-line shot: no gravity applied while airborne as a projectile.
 	move_and_slide()
 
 	_projectile_timer -= delta
 	if _projectile_timer <= 0.0:
+		queue_free()
+
+func _on_visible_on_screen_enabler_2d_screen_exited() -> void:
+	if is_projectile or is_dead:
 		queue_free()

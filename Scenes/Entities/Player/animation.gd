@@ -11,7 +11,6 @@ enum State { IDLE, IDLE_BLOATED, WALK, WALK_BLOATED, HOP, HOP_BLOATED, FALL, KNE
 var current_state = State.IDLE
 
 func _process(_delta: float) -> void:
-	# 1. Safety Guard: Prevents the "Nil" access crash if player isn't loaded/assigned yet
 	if not player_controller:
 		return
 		
@@ -48,12 +47,9 @@ func determine_player_state() -> State:
 	if player_controller.hp <= 0:
 		return State.DEATH
 
-	# Hurt takes priority over everything else
 	if player_controller.is_knockback and not player_controller.is_on_floor():
 		return State.HURT
 
-	# Lock animation state to LICK/SPIT if player is actively attacking.
-	# Bloated players spit their eaten enemy instead of using the tongue.
 	if player_controller.current_state == player_controller.State.ATTACK:
 		return State.SPIT if player_controller.is_bloated else State.LICK
 		
@@ -65,6 +61,7 @@ func determine_player_state() -> State:
 			return State.WALK_BLOATED if player_controller.is_bloated else State.WALK
 		else:
 			return State.IDLE_BLOATED if player_controller.is_bloated else State.IDLE
+
 	# Airborne States
 	else: 
 		if player_controller.velocity.y < 0:
@@ -116,7 +113,7 @@ func play_animation_for_state(state: State) -> void:
 		State.LICK:
 			animplay.play("attack")
 		State.SPIT:
-			animplay.play("bloated_attack")
+			animplay.play("attack")
 		State.HURT:
 			animplay.play("hurt")
 		State.DEATH:
