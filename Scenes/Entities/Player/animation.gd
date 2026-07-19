@@ -79,19 +79,15 @@ func play_animation_for_state(state: State) -> void:
 			sprite.offset.y = 0
 			if player_controller.direction == 1:
 				sprite.flip_h = false
-				sprite.offset.x = 0
 			elif player_controller.direction == -1:
 				sprite.flip_h = true
-				sprite.offset.x = -3
 		State.IDLE_BLOATED:
 			animplay.play("bloated_idle")
 			sprite.offset.y = 0
 			if player_controller.direction == 1:
 				sprite.flip_h = false
-				sprite.offset.x = 0
 			elif player_controller.direction == -1:
 				sprite.flip_h = true
-				sprite.offset.x = -3
 		State.WALK:
 			animplay.play("walk")
 			sprite.offset.y = 0
@@ -111,9 +107,15 @@ func play_animation_for_state(state: State) -> void:
 			animplay.play("crouch")
 			sprite.offset.y = 0
 		State.LICK:
-			animplay.play("attack")
+			if player_controller.is_on_floor():
+				animplay.play("attack")
+			else:
+				animplay.play("attack_air")
 		State.SPIT:
-			animplay.play("attack")
+			if player_controller.is_on_floor():
+				animplay.play("attack")
+			else:
+				animplay.play("attack_air")
 		State.HURT:
 			animplay.play("hurt")
 		State.DEATH:

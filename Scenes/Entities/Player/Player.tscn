@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cqy0si7f4eixd" path="res://Scenes/Entities/Player/player.gd" id="1_agccv"]
 [ext_resource type="Script" uid="uid://bp6p3j1hgila8" path="res://Scenes/Entities/Player/animation.gd" id="2_g4oe6"]
 [ext_resource type="Shader" uid="uid://m0hxm3ktxmh2" path="res://Shaders/palette_switcher.gdshader" id="3_g4oe6"]
+[ext_resource type="Texture2D" uid="uid://blo415sdrghme" path="res://Asset/Sprites/Effects/tongue-tile.png" id="3_vgr12"]
 [ext_resource type="Texture2D" uid="uid://cusqwkrgo6enn" path="res://Asset/Sprites/Effects/charge_glow.png" id="5_86atj"]
 [ext_resource type="Script" uid="uid://comfqxd14a2i5" path="res://Scenes/Entities/Player/tongue.gd" id="6_hi4ft"]
 [ext_resource type="Texture2D" uid="uid://de42u105tqev1" path="res://Asset/Sprites/Effects/tonguetip.png" id="6_yu0ev"]
@@ -49,11 +50,37 @@ tracks/2/keys = {
 "update": 1,
 "values": [false]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2, -24)]
+}
 
 [sub_resource type="Animation" id="Animation_agccv"]
 resource_name = "attack"
 length = 0.16666667
-step = 0.16666667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [10, 9]
+}
+
+[sub_resource type="Animation" id="Animation_xa30k"]
+resource_name = "attack_air"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -64,7 +91,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [9]
+"values": [38]
 }
 
 [sub_resource type="Animation" id="Animation_g4oe6"]
@@ -268,6 +295,42 @@ tracks/0/keys = {
 "values": [3]
 }
 
+[sub_resource type="Animation" id="Animation_hi4ft"]
+resource_name = "spin"
+length = 0.60001004
+loop_mode = 1
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [32, 33, 34, 35, 36, 37]
+}
+
+[sub_resource type="Animation" id="Animation_vgr12"]
+resource_name = "spin_reverse"
+length = 0.60001004
+loop_mode = 1
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [37, 36, 35, 34, 33, 32]
+}
+
 [sub_resource type="Animation" id="Animation_3m754"]
 resource_name = "walk"
 length = 0.50000834
@@ -290,6 +353,7 @@ tracks/0/keys = {
 _data = {
 &"RESET": SubResource("Animation_v402d"),
 &"attack": SubResource("Animation_agccv"),
+&"attack_air": SubResource("Animation_xa30k"),
 &"attack_upfront": SubResource("Animation_g4oe6"),
 &"bloated_idle": SubResource("Animation_86atj"),
 &"bloated_jump": SubResource("Animation_yu0ev"),
@@ -301,6 +365,8 @@ _data = {
 &"hurt": SubResource("Animation_rsj4h"),
 &"idle": SubResource("Animation_4kc40"),
 &"jump": SubResource("Animation_wmg1a"),
+&"spin": SubResource("Animation_hi4ft"),
+&"spin_reverse": SubResource("Animation_vgr12"),
 &"walk": SubResource("Animation_3m754")
 }
 
@@ -334,8 +400,9 @@ script = ExtResource("6_hi4ft")
 
 [node name="Line2D" type="Line2D" parent="Tongue" unique_id=1524735495]
 points = PackedVector2Array(0, 1)
-width = 2.0
-default_color = Color(1, 0.42352942, 0.42352942, 1)
+width = 8.0
+texture = ExtResource("3_vgr12")
+texture_mode = 1
 
 [node name="TipSprite" type="Sprite2D" parent="Tongue" unique_id=1457264901]
 texture = ExtResource("6_yu0ev")
@@ -359,10 +426,10 @@ autoplay = &"idle"
 
 [node name="Sprite2D" type="Sprite2D" parent="Animation" unique_id=1876757062]
 material = SubResource("ShaderMaterial_86atj")
-position = Vector2(0, -24)
+position = Vector2(2, -24)
 texture = ExtResource("1_3kvya")
 hframes = 6
-vframes = 6
+vframes = 7
 
 [node name="CollisionStand" type="CollisionShape2D" parent="." unique_id=1436532839]
 position = Vector2(-1.75, -15)
@@ -373,6 +440,7 @@ position = Vector2(-2.5, -10)
 shape = SubResource("RectangleShape2D_3kvya")
 
 [node name="CoyoteTimer" type="Timer" parent="." unique_id=31842460]
+wait_time = 0.12
 one_shot = true
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=32910830]
@@ -398,4 +466,5 @@ initial_velocity_min = 30.0
 initial_velocity_max = 30.0
 
 [connection signal="body_entered" from="Tongue/TipSprite/Hitbox" to="Tongue" method="_on_hitbox_body_entered"]
+[connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]
 [connection signal="timeout" from="Invulnerability" to="." method="_on_invulnerability_timeout"]

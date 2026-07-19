@@ -7,7 +7,10 @@
 [ext_resource type="AudioStream" uid="uid://iiquuuyseux" path="res://Asset/Audio/SFX/charge.ogg" id="2_tltgo"]
 [ext_resource type="AudioStream" uid="uid://cd6cv78w81l0n" path="res://Asset/Audio/SFX/superjump.ogg" id="5_meyp6"]
 [ext_resource type="AudioStream" uid="uid://dyiqdxw3s15ch" path="res://Asset/Audio/Music/Lillius.ogg" id="7_ay801"]
+[ext_resource type="AudioStream" uid="uid://bdt0ye0gnduml" path="res://Asset/Audio/SFX/pop.ogg" id="7_upp3i"]
 [ext_resource type="AudioStream" uid="uid://drddm16d1gqp8" path="res://Asset/Audio/Music/Menu.ogg" id="8_700wp"]
+[ext_resource type="AudioStream" uid="uid://brps2yyavjk47" path="res://Asset/Audio/SFX/tongue.ogg" id="8_ekjdc"]
+[ext_resource type="AudioStream" uid="uid://c07evav0x6o4" path="res://Asset/Audio/SFX/jump.ogg" id="8_sl04w"]
 [ext_resource type="AudioStream" uid="uid://busg2f8qrfywv" path="res://Asset/Audio/Music/Rhino.ogg" id="9_upp3i"]
 
 [node name="AudioManager" type="Node" unique_id=366153569]
@@ -27,6 +30,8 @@ bus = &"SFX"
 
 [node name="Swallow" type="AudioStreamPlayer" parent="SFX" unique_id=790362983]
 stream = ExtResource("1_acu6l")
+volume_db = -3.0
+pitch_scale = 2.53
 bus = &"SFX"
 
 [node name="Step" type="AudioStreamPlayer" parent="SFX" unique_id=1270623158]
@@ -37,6 +42,19 @@ bus = &"SFX"
 [node name="Superjump" type="AudioStreamPlayer" parent="SFX" unique_id=742226058]
 stream = ExtResource("5_meyp6")
 volume_db = 5.0
+bus = &"SFX"
+
+[node name="Pop" type="AudioStreamPlayer" parent="SFX" unique_id=836185571]
+stream = ExtResource("7_upp3i")
+bus = &"SFX"
+
+[node name="Tongue" type="AudioStreamPlayer" parent="SFX" unique_id=613069761]
+stream = ExtResource("8_ekjdc")
+
+[node name="Jump" type="AudioStreamPlayer" parent="SFX" unique_id=1636377935]
+stream = ExtResource("8_sl04w")
+volume_db = 2.745
+pitch_scale = 1.36
 bus = &"SFX"
 
 [node name="BGM" type="Node" parent="." unique_id=292756428]

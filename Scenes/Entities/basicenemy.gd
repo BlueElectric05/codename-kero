@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 var catcher : Node2D  # Changed type to Node2D to safely reference TipSprite or Player
-var offSet = Vector2(0, 8)
+var offSet = Vector2(0, 10)
 
 var direction = 1
 const SPEED = 30.0
@@ -11,7 +11,7 @@ const SPEED = 30.0
 @export var DEATH_FRICTION: float = 0.15 
 
 # --- Projectile (post-swallow) tuning ---
-const PROJECTILE_SPEED = 220.0
+const PROJECTILE_SPEED = 320.0
 const PROJECTILE_LIFETIME = 2.0
 
 @onready var animation = $AnimatedSprite2D
@@ -125,6 +125,8 @@ func reduceHp(hit_dir: int = 0):
 
 func knockback(hit_dir: int = 0):
 	Particles.play_effect("spark", global_position)
+	Particles.play_effect("dustsplode", global_position)
+	AudioManager.play_unique(AudioManager.pop)
 	knockback_time = KNOCKBACK_DURATION
 	var force = randf_range(KNOCKBACK_FORCE_MIN, KNOCKBACK_FORCE_MAX)
 	var dir = hit_dir if hit_dir != 0 else direction
