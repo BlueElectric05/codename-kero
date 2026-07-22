@@ -1,21 +1,10 @@
-extends Area2D
+extends StaticBody2D
+class_name SwingAnchor
+
+# Attach this to any Node2D you want the player to be able to grab and swing
+# from (a vine tip, a hook, a branch, etc). It just needs to exist in the
+# "swing_anchor" group — PlayerController.find_swing_anchor() scans that
+# group for candidates in range and in front of the player.
 
 func _ready() -> void:
-	body_entered.connect(_on_body_entered)
-	area_entered.connect(_on_area_entered)
-
-func _on_body_entered(body: Node2D) -> void:
-	print("SwingPoint kena BODY: ", body.name)
-	_flash()
-
-func _on_area_entered(area: Area2D) -> void:
-	print("SwingPoint kena AREA: ", area.name)
-	_flash()
-
-func _flash() -> void:
-	# feedback visual sementara biar keliatan tanpa buka console
-	var sprite := get_parent().get_node_or_null("Sprite2D")
-	if sprite:
-		sprite.modulate = Color.GREEN
-		await get_tree().create_timer(0.3).timeout
-		sprite.modulate = Color.WHITE
+	add_to_group("swing_anchor")

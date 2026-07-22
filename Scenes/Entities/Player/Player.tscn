@@ -408,7 +408,7 @@ texture_mode = 1
 texture = ExtResource("6_yu0ev")
 
 [node name="Hitbox" type="Area2D" parent="Tongue/TipSprite" unique_id=1916317183]
-collision_mask = 32
+collision_mask = 96
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tongue/TipSprite/Hitbox" unique_id=1329414404]
 shape = SubResource("RectangleShape2D_td8ue")
@@ -443,9 +443,6 @@ shape = SubResource("RectangleShape2D_3kvya")
 wait_time = 0.12
 one_shot = true
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=32910830]
-offset = Vector2(0, -30)
-
 [node name="Invulnerability" type="Timer" parent="." unique_id=689484588]
 one_shot = true
 
@@ -466,5 +463,6 @@ initial_velocity_min = 30.0
 initial_velocity_max = 30.0
 
 [connection signal="body_entered" from="Tongue/TipSprite/Hitbox" to="Tongue" method="_on_hitbox_body_entered"]
+[connection signal="animation_finished" from="Animation/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]
 [connection signal="timeout" from="Invulnerability" to="." method="_on_invulnerability_timeout"]

@@ -40,7 +40,7 @@ var current_state: State = State.IDLE
 @export var BLINK_INTERVAL: float = 0.01
 
 @export_group("Mechanics")
-@export var RESPAWN_FALL_Y: float = 256.0
+@export var RESPAWN_FALL_Y: float = 320.0
 @export var RESPAWN_POSITION: Vector2 = Vector2(40, 40)
 @export var max_charge_time: float = 0.5
 @export var spit_duration: float = 0.35
@@ -48,7 +48,7 @@ var current_state: State = State.IDLE
 # ==========================================
 # RUNTIME STATE
 # ==========================================
-var hp: int
+var hp = Global.health
 var direction: float = 0.0
 var last_facing: int = 1
 
@@ -81,6 +81,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if position.y > RESPAWN_FALL_Y:
 		position = RESPAWN_POSITION
+		Global.reduce_life()
 
 	update_inputs()
 	handle_visuals(delta)
@@ -139,9 +140,6 @@ func execute_state(delta: float) -> void:
 		State.KO:
 			velocity.y = 0
 			apply_friction()
-			if anim_player.current_animation == "death" and sprite.frame == 31:
-				Particles.play_effect("dustsplode", global_position)
-				sprite.visible = false
 
 func update_inputs() -> void:
 	if is_knockback or current_state == State.ATTACK:
@@ -269,7 +267,9 @@ func reduceHP() -> void:
 	if is_invulnerable: return  
 
 	hp -= 1
+	Global.health = hp
 	progress_bar.value = hp
+
 	AudioManager.play_unique(AudioManager.ouch)
 
 	if hp <= 0:
@@ -318,3 +318,21 @@ func _start_spit_attack() -> void:
 		if last_eaten_enemy.has_method("fire_as_projectile"):
 			last_eaten_enemy.fire_as_projectile(last_facing, tongue.global_position)
 	last_eaten_enemy = null
+
+func reload() -> void:
+	if get_tree():
+		get_tree().reload_current_scene()
+		global_position = RESPAWN_POSITION
+		hp = max_hp
+
+func _on_animation_player_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "death":
+		AudioManager.play_unique(AudioManager.pop)
+		Global.reduce_life()
+		Particles.play_effect("dustsplode", global_position)
+		
+		await get_tree().create_timer(0.5).timeout
+		reload()
+
+		queue_free()
+		

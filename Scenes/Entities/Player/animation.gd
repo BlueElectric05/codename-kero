@@ -1,6 +1,10 @@
 extends Node2D
 
-enum State { IDLE, IDLE_BLOATED, WALK, WALK_BLOATED, HOP, HOP_BLOATED, FALL, KNEEL, LICK, SPIT, HURT, DEATH }
+enum State { IDLE, IDLE_BLOATED, WALK, 
+WALK_BLOATED, HOP, HOP_BLOATED, FALL, 
+KNEEL, LICK, SPIT, HURT, DEATH, SPIN }
+
+
 @export var player_controller: PlayerController
 @export var animplay: AnimationPlayer
 @export var sprite: Sprite2D
@@ -62,6 +66,9 @@ func determine_player_state() -> State:
 		else:
 			return State.IDLE_BLOATED if player_controller.is_bloated else State.IDLE
 
+	# if player_controller.current_state == player_controller.State.SWING:
+	# 	return State.SPIN
+
 	# Airborne States
 	else: 
 		if player_controller.velocity.y < 0:
@@ -116,6 +123,13 @@ func play_animation_for_state(state: State) -> void:
 				animplay.play("attack")
 			else:
 				animplay.play("attack_air")
+		State.SPIN:
+			if player_controller.velocity.x < 0:
+				animplay.play("spin")
+				sprite.flip_h = true
+			else:
+				animplay.play("spin")
+				sprite.flip_h = false
 		State.HURT:
 			animplay.play("hurt")
 		State.DEATH:

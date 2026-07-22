@@ -1,7 +1,7 @@
 extends Node2D
 class_name TongueAttack
 
-enum TongueState { INACTIVE, EXTENDING, RETRACTING }
+enum TongueState { INACTIVE, EXTENDING, RETRACTING, SWINGING }
 var current_state: TongueState = TongueState.INACTIVE
 
 @export var max_length: float = 60.0

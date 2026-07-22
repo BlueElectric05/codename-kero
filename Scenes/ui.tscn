@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://b6iddsu3f821t"]
+
+[ext_resource type="Texture2D" uid="uid://bcq48kdhtq4f1" path="res://Asset/Sprites/User Interface/healthbar-quantized.png" id="1_2246s"]
+[ext_resource type="Texture2D" uid="uid://d00be6ktyke3q" path="res://Asset/Sprites/User Interface/heartspin.png" id="2_q7pk6"]
+[ext_resource type="Texture2D" uid="uid://c17ppuxx184ma" path="res://Asset/Sprites/User Interface/kaeruicon.png" id="3_m78vo"]
+[ext_resource type="FontFile" uid="uid://tpy28buc7uyd" path="res://Asset/Fonts/Boiled Pasta.ttf" id="4_smcll"]
+[ext_resource type="Script" uid="uid://bb3dkqghn3584" path="res://Scenes/lifecounter.gd" id="5_q7pk6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_suyhb"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ulvnh"]
+bg_color = Color(0.8666667, 0.14509805, 0.105882354, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y71pw"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(0, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gpvn2"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(24, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y0425"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(48, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7660m"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(72, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nppqs"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(96, 0, 24, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3wh3t"]
+atlas = ExtResource("2_q7pk6")
+region = Rect2(120, 0, 24, 23)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fweib"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y71pw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpvn2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y0425")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7660m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nppqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3wh3t")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="UI" type="CanvasLayer" unique_id=157394138]
+
+[node name="Health Bar" type="Node" parent="." unique_id=601265176]
+
+[node name="ProgressBar" type="ProgressBar" parent="Health Bar" unique_id=1783069336]
+offset_left = 39.0
+offset_top = 16.5
+offset_right = 120.0
+offset_bottom = 30.5
+theme_override_styles/background = SubResource("StyleBoxFlat_suyhb")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ulvnh")
+max_value = 5.0
+value = 5.0
+show_percentage = false
+
+[node name="Bar Overlay" type="Sprite2D" parent="Health Bar" unique_id=500710125]
+position = Vector2(66, 22)
+texture = ExtResource("1_2246s")
+
+[node name="Spinning Heart" type="AnimatedSprite2D" parent="Health Bar" unique_id=1835184978]
+position = Vector2(24, 16.5)
+sprite_frames = SubResource("SpriteFrames_fweib")
+autoplay = "default"
+frame_progress = 0.58184826
+
+[node name="KY Icon" type="Sprite2D" parent="." unique_id=1984209787]
+position = Vector2(21, 220)
+texture = ExtResource("3_m78vo")
+
+[node name="Label" type="Label" parent="." unique_id=1972072844]
+offset_left = 31.0
+offset_top = 214.0
+offset_right = 71.0
+offset_bottom = 237.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_smcll")
+theme_override_font_sizes/font_size = 16
+script = ExtResource("5_q7pk6")

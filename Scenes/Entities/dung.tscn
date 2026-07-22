@@ -176,7 +176,7 @@ one_shot = true
 one_shot = true
 
 [node name="RayCast2D" type="RayCast2D" parent="." unique_id=514425162]
-position = Vector2(18, -46)
+position = Vector2(1, -46)
 collision_mask = 16
 
 [node name="VisibleOnScreenEnabler2D" type="VisibleOnScreenEnabler2D" parent="." unique_id=1750197492]

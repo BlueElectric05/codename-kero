@@ -25,7 +25,6 @@ buses/default_bus_layout="uid://dr4crdsd2eu1s"
 AudioManager="*uid://b2l0keqjnbx3m"
 Global="*uid://vgoflfydpesl"
 Particles="*uid://b0l8ou4wf0sjc"
-GameState="*res://Global/game_state.gd"
 
 [display]
 

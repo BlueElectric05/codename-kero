@@ -24,7 +24,7 @@ const PROJECTILE_LIFETIME = 2.0
 @onready var ledge_detector: RayCast2D = $RayCast2D
 
 @export var gravity : int = 700
-@export var ledge_detect_distance : int = 8
+@export var ledge_detect_distance : int = 2
 var is_moving = true
 
 var hp = 2
